@@ -21,13 +21,12 @@ body {
     color: var(--text-light);
 }
 
-/* Navbar */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1.2rem 6%;
-    background-color: rgba(15, 23, 42, 0.9);
+    background-color: rgba(15, 23, 42, 0.95);
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
@@ -74,15 +73,14 @@ body {
     color: white;
 }
 
-/* Hero Section */
 .hero-section {
     text-align: center;
-    padding: 5rem 1rem;
+    padding: 4rem 1rem;
     background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
 }
 
 .hero-title {
-    font-size: 2.8rem;
+    font-size: 2.5rem;
     font-weight: 800;
     margin-bottom: 1rem;
 }
@@ -91,13 +89,13 @@ body {
     color: var(--text-muted);
     max-width: 750px;
     margin: 0 auto 2rem;
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1.6;
 }
 
 .hero-buttons a {
     display: inline-block;
-    padding: 12px 26px;
+    padding: 12px 24px;
     border-radius: 6px;
     text-decoration: none;
     font-weight: 600;
@@ -114,7 +112,6 @@ body {
     color: var(--text-light);
 }
 
-/* Form Container */
 .container {
     max-width: 900px;
     margin: 2rem auto;
@@ -131,7 +128,7 @@ body {
 
 .form-card h2 {
     margin-bottom: 1.5rem;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
 }
 
 .input-group {
@@ -153,6 +150,11 @@ body {
     padding: 10px 14px;
     border-radius: 6px;
     font-size: 0.95rem;
+    outline: none;
+}
+
+.input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+    border-color: var(--primary-blue);
 }
 
 .input-grid-2 {
@@ -184,7 +186,6 @@ body {
     background-color: var(--primary-hover);
 }
 
-/* Results Section */
 .hidden {
     display: none;
 }
@@ -217,7 +218,6 @@ body {
     font-size: 0.95rem;
 }
 
-/* Footer */
 footer {
     text-align: center;
     padding: 2rem;
