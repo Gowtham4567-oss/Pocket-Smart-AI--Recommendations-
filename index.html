@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <!-- Glassmorphism Navbar -->
+    <!-- Navbar Section -->
     <nav class="navbar">
         <div class="logo">
             <i class="fa-solid fa-wallet"></i> PocketSmart <span>AI</span>
@@ -26,28 +26,26 @@
         </div>
     </nav>
 
-    <!-- Hero Section (Dark Modern Design) -->
+    <!-- Hero Banner -->
     <section class="hero-section">
         <h1 class="hero-title">AI-Powered Budget Planning for Everyday Needs</h1>
         <p class="hero-subtitle">Make smarter financial decisions with personalized recommendations for home interiors, party setups, and jewelry purchases within your budget constraints.</p>
         <div class="hero-buttons">
             <a href="#planners" class="btn-primary">Explore Planners</a>
-            <a href="#learn-more" class="btn-secondary">Learn More</a>
+            <a href="#" class="btn-secondary">Learn More</a>
         </div>
     </section>
 
-    <!-- Planner Section -->
+    <!-- Form Section -->
     <main class="container" id="planners">
         <div class="form-card">
             <h2><i class="fa-solid fa-house"></i> Home Interior Budget Planner</h2>
             <form id="homeForm">
-                <!-- Total Budget -->
                 <div class="input-group">
                     <label for="budget">Total Budget (₹)</label>
                     <input type="number" id="budget" value="10000" min="1000" required>
                 </div>
 
-                <!-- Room Type & Style Selectors -->
                 <div class="input-grid-2">
                     <div class="input-group">
                         <label for="roomType">Target Area / Room</label>
@@ -69,7 +67,6 @@
                     </div>
                 </div>
 
-                <!-- 5 Essential House Items -->
                 <div class="input-grid-5">
                     <div class="input-group">
                         <label for="lights">Lights</label>
@@ -93,7 +90,6 @@
                     </div>
                 </div>
 
-                <!-- Additional Requirements (Dynamic Input) -->
                 <div class="input-group">
                     <label for="notes">Additional Requirements</label>
                     <textarea id="notes" rows="3" placeholder="e.g. clock, wall painting, teak wood finish..."></textarea>
@@ -103,7 +99,7 @@
             </form>
         </div>
 
-        <!-- Output Breakdown Section -->
+        <!-- Dynamic Results Display Section -->
         <div id="resultsWrapper" class="results-wrapper hidden">
             <div class="results-card">
                 <h3><i class="fa-solid fa-wand-magic-sparkles"></i> AI Recommendation Breakdown</h3>
@@ -113,7 +109,6 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer>
         <p>© 2026 PocketSmart AI. Built for Smart Financial Planning.</p>
     </footer>
