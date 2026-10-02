@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketSmart AI - Budget Recommendation Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>PocketSmart AI</h1>
+        <span>Smart Budget Recommendation</span>
+    </header>
+
+    <div class="container">
+        <!-- Form Section -->
+        <div class="card">
+            <h2>Get AI Recommendations</h2>
+            <p class="subtitle">Select category, budget, and optionally upload an image (Home floor plan, Party setup, or Jewelry design).</p>
+            
+            <form id="recommendation-form">
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Home Interior">Home Interior</option>
+                        <option value="Party Planning">Party Planning</option>
+                        <option value="Jewelry">Jewelry</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget">Budget (₹)</label>
+                    <input type="number" id="budget" placeholder="Enter budget amount" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Upload Reference Image (Optional)</label>
+                    <input type="file" id="image" accept="image/*">
+                </div>
+
+                <button type="submit">Generate Recommendations</button>
+            </form>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="loading">
+            Analyzing inputs with Gemini AI...
+        </div>
+
+        <!-- Results Section -->
+        <div class="card" id="results-container" style="display: none;">
+            <h2>Recommended Options</h2>
+            <div id="results" class="results-grid"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
