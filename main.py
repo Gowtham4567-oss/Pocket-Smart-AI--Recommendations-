@@ -18,9 +18,9 @@ def recommend_home():
     furniture = int(data.get('furniture', 2))
     appliances = int(data.get('appliances', 2))
     decor = int(data.get('decor', 1))
-    notes = data.get('notes', '').strip()  # Catching custom input like 'clock'
+    notes = data.get('notes', '').strip()  # User additional requirements (e.g., 'clock')
 
-    # Dynamic Budget Allocation Logic
+    # Budget Calculations based on whether custom notes exist
     if notes:
         alloc_lights = round(budget * 0.15, 2)
         alloc_fans = round(budget * 0.20, 2)
@@ -35,34 +35,35 @@ def recommend_home():
         alloc_appliances = round(budget * 0.15, 2)
         alloc_decor = round(budget * 0.10, 2)
 
+    # Core 5 Essential recommendations
     items = [
         {
             'title': f'Lighting Setup ({lights} Lights) — Allocation: ₹{alloc_lights:.2f}',
-            'desc': f'Smart LED Bulbs & Warm White Strips suitable for {room_type} ({style} style).'
+            'desc': f'Smart LED Bulbs & Accent Lighting selected for {room_type} ({style} style).'
         },
         {
             'title': f'Fans & Airflow ({fans} Fans) — Allocation: ₹{alloc_fans:.2f}',
-            'desc': 'Energy Efficient BLDC Ceiling Fans with remote control.'
+            'desc': 'Energy-efficient BLDC Ceiling Fans with modern finish.'
         },
         {
             'title': f'Furniture Essentials ({furniture} Items) — Allocation: ₹{alloc_furniture:.2f}',
-            'desc': f'Minimalist & Space-saving Furniture set designed for {style} interiors.'
+            'desc': f'Space-saving & functional furniture suited for {style} setup.'
         },
         {
             'title': f'Utility Appliances ({appliances} Items) — Allocation: ₹{alloc_appliances:.2f}',
-            'desc': 'Power-saving essential household appliances.'
+            'desc': 'Essential power-saving electrical appliances.'
         },
         {
-            'title': f'Decor & Mandir Elements ({decor} Items) — Allocation: ₹{alloc_decor:.2f}',
-            'desc': f'Custom decor elements matching {room_type} aesthetics.'
+            'title': f'Decor Elements ({decor} Items) — Allocation: ₹{alloc_decor:.2f}',
+            'desc': f'Aesthetic decor accents for {room_type}.'
         }
     ]
 
-    # Additional requirement (e.g. clock) user input panirundha list-la dynamic-a sethuko
+    # Dynamic Custom Requirement Insertion
     if notes:
         items.append({
             'title': f'Custom Requirement ({notes.title()}) — Allocation: ₹{alloc_custom:.2f}',
-            'desc': f'Personalized {notes} selected specifically for your {room_type} design.'
+            'desc': f'Personalized {notes} matching your budget and {style} theme.'
         })
 
     return jsonify({
