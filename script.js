@@ -1,35 +1,58 @@
 /**
- * PocketSmart AI - Dynamic Engine & User Authentication Manager
+ * PocketSmart AI - Dynamic Script Engine
  */
 
-const API_BASE_URL = "http://127.0.0.1:8000";
-const historyStore = [];
-
-// Initialize Login State from Local Storage
 document.addEventListener("DOMContentLoaded", () => {
-  const savedUser = localStorage.getItem("pocketSmartUser");
-  if (savedUser) {
-    updateUserUI(savedUser);
+  showTab('home');
+
+  // Load dynamically logged in user
+  const activeUser = localStorage.getItem("pocketSmartActiveUser");
+  if (activeUser) {
+    updateUserUI(activeUser);
+  } else {
+    showAuthButtons();
+  }
+
+  // Attach Direct Event Listeners for Buttons to guarantee execution
+  const btnHome = document.getElementById('btnGenerateHome');
+  if (btnHome) {
+    btnHome.addEventListener('click', handleHomeDecorSubmit);
+  }
+
+  const btnParty = document.getElementById('btnGenerateParty');
+  if (btnParty) {
+    btnParty.addEventListener('click', handlePartySubmit);
+  }
+
+  const btnJewelry = document.getElementById('btnGenerateJewelry');
+  if (btnJewelry) {
+    btnJewelry.addEventListener('click', handleJewelrySubmit);
   }
 });
 
-// Tab Navigation
+// Tab Switcher
 function showTab(tabId) {
   const contents = document.querySelectorAll('.tab-content');
-  contents.forEach(content => content.classList.remove('active'));
-  
+  contents.forEach(content => {
+    content.classList.remove('active');
+    content.classList.add('hidden');
+  });
+
   const activeTab = document.getElementById(tabId);
   if (activeTab) {
+    activeTab.classList.remove('hidden');
     activeTab.classList.add('active');
   }
 
-  if (tabId === 'history') {
-    renderHistory();
+  if (tabId === 'planners') {
+    backToPlannerCards();
   }
 }
 
-// Planner Selector Switcher
+// Select Planner Card
 function selectPlanner(plannerType) {
+  document.getElementById('plannerCardsView').classList.add('hidden');
+  
   const formsContainer = document.getElementById('plannerForms');
   const forms = document.querySelectorAll('.planner-form');
   
@@ -43,219 +66,152 @@ function selectPlanner(plannerType) {
   } else if (plannerType === 'jewelry') {
     document.getElementById('jewelryForm').classList.remove('hidden');
   }
-  
+
   document.getElementById('recommendationOutput').classList.add('hidden');
 }
 
-// Handle Home Decor Submission
-async function handleHomeDecorSubmit(event) {
-  event.preventDefault();
-  const budget = parseFloat(document.getElementById('homeBudget').value) || 10000;
-  const numLights = parseInt(document.getElementById('numLights').value) || 0;
-  const numFans = parseInt(document.getElementById('numFans').value) || 0;
-  const numFurniture = parseInt(document.getElementById('numFurniture').value) || 0;
-  const notes = document.getElementById('homeNotes').value;
-
-  displayLoading();
-
-  // Primary Client-side Engine to guarantee success on GitHub Pages
-  setTimeout(() => {
-    const result = {
-      status: "success",
-      domain: "Home Interior",
-      data: {
-        total_budget: budget,
-        budget_breakdown: [
-          {
-            category: "Lighting Setup (" + numLights + " Lights)",
-            allocated_amount: (budget * 0.25).toFixed(2),
-            items: ["Smart LED Bulbs & Warm White Strips (Amazon/Flipkart)"]
-          },
-          {
-            category: "Fans & Airflow (" + numFans + " Fans)",
-            allocated_amount: (budget * 0.35).toFixed(2),
-            items: ["Energy Efficient BLDC Ceiling Fans"]
-          },
-          {
-            category: "Furniture Essentials (" + numFurniture + " Items)",
-            allocated_amount: (budget * 0.40).toFixed(2),
-            items: ["Minimalist Wooden Furniture Setup (IKEA / Amazon)"]
-          }
-        ]
-      }
-    };
-    saveToHistory("Home Interior", budget, `Lights: ${numLights}, Fans: ${numFans}, Furniture: ${numFurniture}`);
-    renderOutput(result);
-  }, 600);
+// Back Button Handler
+function backToPlannerCards() {
+  document.getElementById('plannerCardsView').classList.remove('hidden');
+  document.getElementById('plannerForms').classList.add('hidden');
 }
 
-// Handle Party Planner Submission
-async function handlePartySubmit(event) {
-  event.preventDefault();
-  const eventType = document.getElementById('eventType').value;
-  const budget = parseFloat(document.getElementById('partyBudget').value);
-  const guestCount = parseInt(document.getElementById('guestCount').value);
-  const notes = document.getElementById('partyNotes').value;
+// Authentication Logic (Stores registered name and displays dynamically)
+function handleRegister(e) {
+  e.preventDefault();
+  const nameInput = document.getElementById('regName').value.trim();
+  const emailInput = document.getElementById('regEmail').value.trim().toLowerCase();
+  const passwordInput = document.getElementById('regPassword').value;
 
-  displayLoading();
-
-  setTimeout(() => {
-    const result = {
-      status: "success",
-      domain: "Party Package",
-      data: {
-        event_type: eventType,
-        guest_count: guestCount,
-        budget_breakdown: [
-          {
-            category: "Catering & Beverages",
-            allocated_amount: (budget * 0.55).toFixed(2),
-            items: ["Buffet Meal Catering via Swiggy / Local Vendors"]
-          },
-          {
-            category: "Venue & Theme Decor",
-            allocated_amount: (budget * 0.30).toFixed(2),
-            items: ["Theme Balloon Arch Decor & Speaker System"]
-          },
-          {
-            category: "Return Gifts & Cake",
-            allocated_amount: (budget * 0.15).toFixed(2),
-            items: ["Customized Return Gifts & Theme Birthday Cake"]
-          }
-        ]
-      }
-    };
-    saveToHistory("Party Package", budget, `${eventType} for ${guestCount} guests`);
-    renderOutput(result);
-  }, 600);
-}
-
-// Handle Jewelry Stylist Submission
-async function handleJewelrySubmit(event) {
-  event.preventDefault();
-  const budget = parseFloat(document.getElementById('jewelryBudget').value);
-  const notes = document.getElementById('jewelryNotes').value;
-
-  displayLoading();
-
-  setTimeout(() => {
-    const result = {
-      status: "success",
-      domain: "Jewelry Stylist",
-      data: {
-        total_budget: budget,
-        recommendations: [
-          "Curated Antique Gold Finish Matching Set within ₹" + budget,
-          "Recommended Retailers: CaratLane, Tanishq, and Amazon Fine Jewelry",
-          "Includes: Matching Neckpiece, Earrings, and Bangles Set"
-        ]
-      }
-    };
-    saveToHistory("Jewelry Stylist", budget, notes);
-    renderOutput(result);
-  }, 600);
-}
-
-// Render Results Output
-function displayLoading() {
-  const output = document.getElementById('recommendationOutput');
-  const content = document.getElementById('outputContent');
-  output.classList.remove('hidden');
-  content.innerHTML = "<p><i class='fa-solid fa-spinner fa-spin'></i> Computing optimal AI spending breakdown...</p>";
-}
-
-function renderOutput(result) {
-  const content = document.getElementById('outputContent');
-  let html = `<h4><i class="fa-solid fa-circle-check" style="color: #16a34a;"></i> Recommendations for ${result.domain || 'Budget Plan'}</h4>`;
-
-  if (result.data && result.data.budget_breakdown) {
-    result.data.budget_breakdown.forEach(item => {
-      html += `
-        <div class="result-card">
-          <h4>${item.category} — Allocation: ₹${item.allocated_amount}</h4>
-          <ul>${item.items.map(i => `<li>${typeof i === 'string' ? i : i.name}</li>`).join('')}</ul>
-        </div>`;
-    });
-  } else if (result.data && result.data.recommendations) {
-    html += `
-      <div class="result-card">
-        <ul>${result.data.recommendations.map(r => `<li>${r}</li>`).join('')}</ul>
-      </div>`;
-  }
-
-  content.innerHTML = html;
-}
-
-// History Ledger
-function saveToHistory(domain, budget, details) {
-  historyStore.push({ domain, budget, details, date: new Date().toLocaleTimeString() });
-}
-
-function renderHistory() {
-  const historyList = document.getElementById('historyList');
-  if (historyStore.length === 0) {
-    historyList.innerHTML = "<p>No previous searches recorded in this session yet.</p>";
+  if (!nameInput || !emailInput || !passwordInput) {
+    alert("Please fill in all details.");
     return;
   }
 
-  historyList.innerHTML = historyStore.map(item => `
-    <div class="planner-card">
-      <i class="fa-solid fa-clock-rotate-left card-icon" style="font-size: 1.5rem;"></i>
-      <h3>${item.domain}</h3>
-      <p><strong>Budget:</strong> ₹${item.budget}</p>
-      <p><strong>Details:</strong> ${item.details}</p>
-      <small style="color: #64748b;">Created at ${item.date}</small>
-    </div>
-  `).join('');
-}
+  let users = JSON.parse(localStorage.getItem("pocketSmartUsers") || "[]");
+  users.push({ name: nameInput, email: emailInput, password: passwordInput });
+  localStorage.setItem("pocketSmartUsers", JSON.stringify(users));
 
-// Modal Toggle Functions
-function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+  localStorage.setItem("pocketSmartActiveUser", nameInput);
+  updateUserUI(nameInput);
 
-// Handle Dynamic Login (No hardcoded username or email)
-function handleLogin(e) {
-  e.preventDefault();
-  const emailInput = document.getElementById('loginEmail').value;
-  // Dynamic extraction: user123@gmail.com -> user123
-  const extractedName = emailInput ? emailInput.split('@')[0] : "User";
-  
-  localStorage.setItem("pocketSmartUser", extractedName);
-  updateUserUI(extractedName);
-  
-  // Clear input fields on login
-  document.getElementById('loginEmail').value = '';
-  document.getElementById('loginPassword').value = '';
-  closeModal('loginModal');
-}
-
-// Handle Dynamic Registration (No hardcoded fallback names)
-function handleRegister(e) {
-  e.preventDefault();
-  const nameInput = document.getElementById('regName').value;
-  const userName = nameInput.trim() ? nameInput : "User";
-  
-  localStorage.setItem("pocketSmartUser", userName);
-  updateUserUI(userName);
-  
-  // Clear input fields on registration
   document.getElementById('regName').value = '';
   document.getElementById('regEmail').value = '';
   document.getElementById('regPassword').value = '';
   closeModal('registerModal');
 }
 
-// Update UI based on User Profile
+function handleLogin(e) {
+  e.preventDefault();
+  const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const passwordInput = document.getElementById('loginPassword').value;
+
+  let users = JSON.parse(localStorage.getItem("pocketSmartUsers") || "[]");
+  const matchedUser = users.find(u => u.email === emailInput && u.password === passwordInput);
+
+  if (matchedUser) {
+    localStorage.setItem("pocketSmartActiveUser", matchedUser.name);
+    updateUserUI(matchedUser.name);
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPassword').value = '';
+    closeModal('loginModal');
+  } else {
+    alert("Invalid login details or user does not exist!");
+  }
+}
+
 function updateUserUI(userName) {
   document.getElementById('authContainer').classList.add('hidden');
-  const userProfile = document.getElementById('userProfileContainer');
-  userProfile.classList.remove('hidden');
+  const profileContainer = document.getElementById('userProfileContainer');
+  profileContainer.classList.remove('hidden');
   document.getElementById('userNameDisplay').innerText = userName;
 }
 
-// Handle Logout
-function handleLogout() {
-  localStorage.removeItem("pocketSmartUser");
+function showAuthButtons() {
   document.getElementById('authContainer').classList.remove('hidden');
   document.getElementById('userProfileContainer').classList.add('hidden');
+  document.getElementById('userNameDisplay').innerText = '';
+}
+
+function handleLogout() {
+  localStorage.removeItem("pocketSmartActiveUser");
+  showAuthButtons();
+}
+
+// Modal Helpers
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// Recommendation Calculation Algorithms
+function handleHomeDecorSubmit() {
+  const budget = parseFloat(document.getElementById('homeBudget').value) || 10000;
+  const lights = document.getElementById('numLights').value || 5;
+  const fans = document.getElementById('numFans').value || 3;
+  const furniture = document.getElementById('numFurniture').value || 2;
+
+  const lightAmt = (budget * 0.25).toFixed(2);
+  const fanAmt = (budget * 0.35).toFixed(2);
+  const furnAmt = (budget * 0.40).toFixed(2);
+
+  const cards = [
+    { title: `Lighting Setup (${lights} Lights) — Allocation: ₹${lightAmt}`, desc: "Smart LED Bulbs & Warm White Strips (Amazon/Flipkart)" },
+    { title: `Fans & Airflow (${fans} Fans) — Allocation: ₹${fanAmt}`, desc: "Energy Efficient BLDC Ceiling Fans" },
+    { title: `Furniture Essentials (${furniture} Items) — Allocation: ₹${furnAmt}`, desc: "Minimalist Wooden Furniture Setup (IKEA / Amazon)" }
+  ];
+
+  renderOutput("Recommendations for Home Interior", cards);
+}
+
+function handlePartySubmit() {
+  const budget = parseFloat(document.getElementById('partyBudget').value) || 45000;
+  const guests = document.getElementById('guestCount').value || 35;
+
+  const foodAmt = (budget * 0.50).toFixed(2);
+  const decorAmt = (budget * 0.30).toFixed(2);
+  const cakeAmt = (budget * 0.20).toFixed(2);
+
+  const cards = [
+    { title: `Catering Setup (${guests} Guests) — Allocation: ₹${foodAmt}`, desc: "Buffet Dinner & Beverage Menu Package" },
+    { title: `Venue Decor & Lighting — Allocation: ₹${decorAmt}`, desc: "Theme Balloon Arch & Backdrop Stage Setup" },
+    { title: `Custom Cake & Goodie Bags — Allocation: ₹${cakeAmt}`, desc: "Customized Designer Cake & Return Gifts" }
+  ];
+
+  renderOutput("Recommendations for Party Package", cards);
+}
+
+function handleJewelrySubmit() {
+  const budget = parseFloat(document.getElementById('jewelryBudget').value) || 35000;
+
+  const cards = [
+    { title: `Gold Finish Necklace Set — Allocation: ₹${(budget * 0.6).toFixed(2)}`, desc: "CaratLane / Tanishq Light Antique Design" },
+    { title: `Matching Earrings & Bangles — Allocation: ₹${(budget * 0.4).toFixed(2)}`, desc: "Pearl & Gemstone Accent Crafting" }
+  ];
+
+  renderOutput("Recommendations for Jewelry Stylist", cards);
+}
+
+function renderOutput(titleText, items) {
+  const outputBox = document.getElementById('recommendationOutput');
+  const titleSpan = document.getElementById('recommendationTitle');
+  const container = document.getElementById('outputContent');
+
+  titleSpan.innerText = titleText;
+  
+  let html = '';
+  items.forEach(item => {
+    html += `
+      <div class="recommend-card">
+        <h4 class="card-title">${item.title}</h4>
+        <ul class="card-list">
+          <li>${item.desc}</li>
+        </ul>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+  outputBox.classList.remove('hidden');
+
+  // Smooth scroll down to output
+  outputBox.scrollIntoView({ behavior: 'smooth' });
 }
