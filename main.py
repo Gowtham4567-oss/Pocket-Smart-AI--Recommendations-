@@ -1,80 +1,127 @@
-from flask import Flask, render_template, request, jsonify
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional
 
-app = Flask(__name__)
+app = FastAPI(title="PocketSmart AI API", version="1.0.0")
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+# CORS Configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.route('/api/recommend/home', methods=['POST'])
-def recommend_home():
-    data = request.get_json()
-    budget = float(data.get('budget', 10000))
-    room_type = data.get('roomType', 'Living Room')
-    style = data.get('interiorStyle', 'Modern Professional')
-    
-    lights = int(data.get('lights', 5))
-    fans = int(data.get('fans', 3))
-    furniture = int(data.get('furniture', 2))
-    appliances = int(data.get('appliances', 2))
-    decor = int(data.get('decor', 1))
-    notes = data.get('notes', '').strip()  # User additional requirements (e.g., 'clock')
+# Request Data Models
+class HomeDecorRequest(BaseModel):
+    budget: float
+    num_lights: Optional[int] = 0
+    num_fans: Optional[int] = 0
+    num_furniture: Optional[int] = 0
+    notes: Optional[str] = ""
 
-    # Budget Calculations based on whether custom notes exist
-    if notes:
-        alloc_lights = round(budget * 0.15, 2)
-        alloc_fans = round(budget * 0.20, 2)
-        alloc_furniture = round(budget * 0.30, 2)
-        alloc_appliances = round(budget * 0.15, 2)
-        alloc_decor = round(budget * 0.10, 2)
-        alloc_custom = round(budget * 0.10, 2)
-    else:
-        alloc_lights = round(budget * 0.20, 2)
-        alloc_fans = round(budget * 0.20, 2)
-        alloc_furniture = round(budget * 0.35, 2)
-        alloc_appliances = round(budget * 0.15, 2)
-        alloc_decor = round(budget * 0.10, 2)
+class PartyRequest(BaseModel):
+    event_type: str
+    budget: float
+    guest_count: int
+    notes: Optional[str] = ""
 
-    # Core 5 Essential recommendations
-    items = [
-        {
-            'title': f'Lighting Setup ({lights} Lights) — Allocation: ₹{alloc_lights:.2f}',
-            'desc': f'Smart LED Bulbs & Accent Lighting selected for {room_type} ({style} style).'
-        },
-        {
-            'title': f'Fans & Airflow ({fans} Fans) — Allocation: ₹{alloc_fans:.2f}',
-            'desc': 'Energy-efficient BLDC Ceiling Fans with modern finish.'
-        },
-        {
-            'title': f'Furniture Essentials ({furniture} Items) — Allocation: ₹{alloc_furniture:.2f}',
-            'desc': f'Space-saving & functional furniture suited for {style} setup.'
-        },
-        {
-            'title': f'Utility Appliances ({appliances} Items) — Allocation: ₹{alloc_appliances:.2f}',
-            'desc': 'Essential power-saving electrical appliances.'
-        },
-        {
-            'title': f'Decor Elements ({decor} Items) — Allocation: ₹{alloc_decor:.2f}',
-            'desc': f'Aesthetic decor accents for {room_type}.'
+class JewelryRequest(BaseModel):
+    budget: float
+    notes: str
+
+# API Endpoints
+@app.get("/")
+def read_root():
+    return {"message": "PocketSmart AI Backend is Running Successfully!"}
+
+@app.post("/recommend/home-decor")
+def recommend_home_decor(req: HomeDecorRequest):
+    try:
+        total = req.budget
+        breakdown = [
+            {
+                "category": f"Lighting Setup ({req.num_lights} Lights)",
+                "allocated_amount": round(total * 0.25, 2),
+                "items": ["Smart LED Bulbs & Warm White Strips"]
+            },
+            {
+                "category": f"Fans & Airflow ({req.num_fans} Fans)",
+                "allocated_amount": round(total * 0.35, 2),
+                "items": ["BLDC Energy Saving Ceiling Fans"]
+            },
+            {
+                "category": f"Furniture Essentials ({req.num_furniture} Items)",
+                "allocated_amount": round(total * 0.40, 2),
+                "items": ["Minimalist Wooden Furniture Essentials"]
+            }
+        ]
+        return {
+            "status": "success",
+            "domain": "Home Interior",
+            "data": {
+                "total_budget": total,
+                "budget_breakdown": breakdown
+            }
         }
-    ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    # Dynamic Custom Requirement Insertion
-    if notes:
-        items.append({
-            'title': f'Custom Requirement ({notes.title()}) — Allocation: ₹{alloc_custom:.2f}',
-            'desc': f'Personalized {notes} matching your budget and {style} theme.'
-        })
-
-    return jsonify({
-        'status': 'success',
-        'data': {
-            'room_type': room_type,
-            'style': style,
-            'total_budget': budget,
-            'items': items
+@app.post("/recommend/party")
+def recommend_party(req: PartyRequest):
+    try:
+        total = req.budget
+        breakdown = [
+            {
+                "category": "Catering & Refreshments",
+                "allocated_amount": round(total * 0.55, 2),
+                "items": [f"Buffet meals for {req.guest_count} guests"]
+            },
+            {
+                "category": "Venue & Decoration",
+                "allocated_amount": round(total * 0.30, 2),
+                "items": ["Theme Balloon Arch & Sound Setup"]
+            },
+            {
+                "category": "Cake & Return Gifts",
+                "allocated_amount": round(total * 0.15, 2),
+                "items": ["Custom Birthday Cake & Gift Favors"]
+            }
+        ]
+        return {
+            "status": "success",
+            "domain": "Party Package",
+            "data": {
+                "event_type": req.event_type,
+                "guest_count": req.guest_count,
+                "budget_breakdown": breakdown
+            }
         }
-    })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+@app.post("/recommend/jewelry")
+def recommend_jewelry(req: JewelryRequest):
+    try:
+        total = req.budget
+        recommendations = [
+            f"Curated Antique Gold Finish Matching Set under ₹{total}",
+            "Recommended Brands: CaratLane, Tanishq, and Fine Jewelry collections",
+            "Set includes: Matching Neckpiece, Earrings, and Bangles"
+        ]
+        return {
+            "status": "success",
+            "domain": "Jewelry Stylist",
+            "data": {
+                "total_budget": total,
+                "recommendations": recommendations
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
