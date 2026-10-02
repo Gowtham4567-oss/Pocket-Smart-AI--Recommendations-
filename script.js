@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 furniture: document.getElementById('furniture').value,
                 appliances: document.getElementById('appliances').value,
                 decor: document.getElementById('decor').value,
-                notes: document.getElementById('notes').value // Dynamic user text input
+                notes: document.getElementById('notes').value
             };
 
             fetch('/api/recommend/home', {
